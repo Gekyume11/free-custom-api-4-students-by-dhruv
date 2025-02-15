@@ -40,7 +40,7 @@ exports.generateAPI = async (req, res) => {
 
             await apiConfig.save();
 
-            const apiBaseURL = `http://localhost:4500/api/${uniqueId}`;
+            const apiBaseURL = `${process.env.BASEURL}${uniqueId}`;
             const apiHeaders = { Authorization: `${apiToken}` };
 
             const emailContent = `

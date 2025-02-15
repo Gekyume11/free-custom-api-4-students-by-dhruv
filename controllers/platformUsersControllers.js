@@ -3,7 +3,6 @@ const jwt = require("jsonwebtoken");
 const OTP = require("../models/otpModel");
 const PlatformUser = require("../models/platformUser");
 const sendEmail = require("../controllers/sendEmail");
-const otpModel = require("../models/otpModel");
 const crypto = require("crypto"); // ✅ Import crypto for generating secure tokens
 
 // 📌 OTP Sending

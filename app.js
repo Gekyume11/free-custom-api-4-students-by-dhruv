@@ -20,7 +20,6 @@ const mongoose = require('mongoose');
 mongoose.connect(process.env.MONGO_DB_CONNECTION, {
   rejectUnauthorized: false,
   tls: true,
-  tlsAllowInvalidCertificates: true
 }).then(() => {
   console.clear();
   console.log('Connected to the Database.');

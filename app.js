@@ -19,8 +19,6 @@ const verifyToken = require('./middlewares/authMiddleware');
 const mongoose = require('mongoose');
 mongoose.connect(process.env.MONGO_DB_CONNECTION, {
   rejectUnauthorized: false,
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
   tls: true,
   tlsAllowInvalidCertificates: true
 }).then(() => {

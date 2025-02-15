@@ -40,7 +40,7 @@ exports.generateAPI = async (req, res) => {
 
             await apiConfig.save();
 
-            const apiBaseURL = `${process.env.BASEURL}${uniqueId}`;
+            const apiBaseURL = `${process.env.BASEURL}/api/${uniqueId}`;
             const apiHeaders = { Authorization: `${apiToken}` };
 
             const emailContent = `

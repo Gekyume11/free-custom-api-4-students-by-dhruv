@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generate an API</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            height: 100vh;
+        }
+        h1 {
+            color: #333;
+        }
+        form {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+        }
+        label, input, select, button {
+            display: block;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        input, select {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #007BFF;
+            color: #fff;
+            border: none;
+            padding: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #generatedLinks {
+            margin-top: 20px;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        #generatedLinks h3 {
+            margin-top: 0;
+        }
+        #fieldsContainer div {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        #fieldsContainer select, #fieldsContainer input {
+            flex: 1;
+            margin-right: 10px;
+        }
+        #fieldsContainer button {
+            flex: 0;
+            background-color: #dc3545;
+        }
+        #fieldsContainer button:hover {
+            background-color: #c82333;
+        }
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgb(0,0,0);
+            background-color: rgba(0,0,0,0.4);
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+  <h1>Generate Dynamic Signup API</h1>
+
+  <form id="dynamicForm" onsubmit="generateAPI(event)">
+      <div id="fieldsContainer"></div>
+      <button type="button" onclick="addField()">Add Field</button>
+      <br><br>
+      <label for="token">Enter Token:</label>
+      <input type="text" id="token" placeholder="Enter your token" required>
+      <br><br>
+      <button type="submit">Generate API</button>
+  </form>
+
+  <!-- Modal -->
+  <div id="myModal" class="modal">
+      <div class="modal-content">
+          <span class="close" onclick="closeModal()">&times;</span>
+          <h3>Generated API Links:</h3>
+          <p id="apiLink"></p>
+          <button onclick="copyToClipboard()">Copy Link</button>
+          <p id="tokenMessage"></p>
+      </div>
+  </div>
+
+  <script>
+      function addField() {
+          const container = document.getElementById("fieldsContainer");
+          const fieldDiv = document.createElement("div");
+
+          fieldDiv.innerHTML = `
+              <select class="fieldType" required>
+                  <option value="text">Text</option>
+                  <option value="number">Number</option>
+                  <option value="email">Email</option>
+                  <option value="password">Password</option>
+                  <option value="date">Date</option>
+              </select>
+              <input type="text" class="fieldName" placeholder="Field Name" required>
+              <button type="button" onclick="removeField(this)">Remove</button>
+          `;
+          container.appendChild(fieldDiv);
+      }
+
+      function removeField(button) {
+          button.parentElement.remove();
+      }
+
+      async function generateAPI(event) {
+          event.preventDefault();
+
+          const fieldNames = [];
+          const fieldTypes = [];
+          const token = document.getElementById("token").value.trim();
+
+          if (!token) {
+              alert("Please enter a valid token.");
+              return;
+          }
+
+          document.querySelectorAll(".fieldName").forEach(input => fieldNames.push(input.value.trim()));
+          document.querySelectorAll(".fieldType").forEach(select => fieldTypes.push(select.value));
+
+          if (fieldNames.length === 0 || fieldTypes.length === 0) {
+              alert("Please add at least one field.");
+              return;
+          }
+
+          try {
+              let response = await fetch("http://localhost:4500/auth/generate-signup-url", {
+                  method: "POST",
+                  headers: { 
+                      "Authorization": `Bearer ${token}`,  // ✅ Fixed missing 'Bearer ' prefix
+                      "Content-Type": "application/json"
+                  },
+                  body: JSON.stringify({ fieldNames, fieldTypes }) 
+              });
+
+              let data = await response.json();
+
+              if (!response.ok) {
+                  throw new Error(data.error || "Failed to generate API.");
+              }
+
+              // Show modal with API link and token message
+              document.getElementById("apiLink").innerHTML = `API Base URL: <a href="${data.apiURL}" target="_blank">${data.apiURL}</a>`;
+              document.getElementById("tokenMessage").innerHTML = `The token has been sent to your email: ${data.email}`;
+              document.getElementById("myModal").style.display = "flex";
+          } catch (err) {
+              console.error("Error:", err.message);
+              alert("Error: " + err.message);
+          }
+      }
+
+      function closeModal() {
+          document.getElementById("myModal").style.display = "none";
+      }
+
+      function copyToClipboard() {
+          const apiLink = document.getElementById("apiLink").innerText;
+          navigator.clipboard.writeText(apiLink).then(() => {
+              alert("API link copied to clipboard!");
+          }).catch(err => {
+              console.error("Error copying to clipboard:", err);
+          });
+      }
+  </script>
+
+</body>
+</html>

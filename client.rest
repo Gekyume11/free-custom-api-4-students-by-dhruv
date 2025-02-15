@@ -1,0 +1,27 @@
+### Generate Signup URL
+POST http://localhost:4500/auth/generate-signup-url
+Content-Type: application/json
+
+{
+  "fieldNames": ["email", "phone", "name"]
+}
+
+### Signup (Use the generated URL from above and replace {UNIQUE_ID})
+POST http://localhost:4500/auth/signup/{UNIQUE_ID}
+Content-Type: application/json
+
+{
+  "fieldNames": ["email", "phone", "name"],
+  "fieldValues": ["test@gmail.com", "1234567890", "John Doe"],
+  "password": "Pa$$w0rd"
+}
+
+### Login (Use the generated login URL from above and replace {UNIQUE_ID})
+POST http://localhost:4500/auth/login/{UNIQUE_ID}
+Content-Type: application/json
+
+{
+  "fieldNames": ["email", "phone", "name"],
+  "fieldValues": ["test@gmail.com", "1234567890", "John Doe"],
+  "password": "Pa$$w0rd"
+}
